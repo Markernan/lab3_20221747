@@ -26,6 +26,7 @@ public class MainActivity extends AppCompatActivity {
         binding.btnCheckConnection.setOnClickListener(v -> checkInternetConnection());
 
         binding.btnSearch.setOnClickListener(v -> {
+            checkInternetConnection();
             String movieId = binding.etMovieId.getText().toString().trim();
             if (movieId.isEmpty()) {
                 Toast.makeText(this, "Ingrese un ID de IMDb válido", Toast.LENGTH_SHORT).show();
@@ -37,22 +38,29 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
-    private void checkInternetConnection() {
+    private boolean checkInternetConnection() {
         ConnectivityManager cm = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
         boolean isConnected = false;
+
         if (cm != null) {
             NetworkCapabilities capabilities = cm.getNetworkCapabilities(cm.getActiveNetwork());
-            if (capabilities != null && (capabilities.hasTransport(NetworkCapabilities.TRANSPORT_WIFI) ||
-                    capabilities.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR) ||
-                    capabilities.hasTransport(NetworkCapabilities.TRANSPORT_ETHERNET))) {
+            if (capabilities != null && (
+                    capabilities.hasTransport(NetworkCapabilities.TRANSPORT_WIFI) ||
+                            capabilities.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR) ||
+                            capabilities.hasTransport(NetworkCapabilities.TRANSPORT_ETHERNET))) {
                 isConnected = true;
             }
         }
 
         if (isConnected) {
+            binding.btnCheckConnection.setIcon(null);
             Toast.makeText(this, "Conexión a internet exitosa (Success)", Toast.LENGTH_LONG).show();
         } else {
+            // Muestra el triángulo de advertencia si no hay internet
+            binding.btnCheckConnection.setIconResource(android.R.drawable.stat_sys_warning);
             Toast.makeText(this, "Error: Sin conexión a internet", Toast.LENGTH_LONG).show();
         }
+
+        return isConnected;
     }
 }
